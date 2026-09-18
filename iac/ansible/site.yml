@@ -1,0 +1,21 @@
+- name: Configuration du serveur web
+  hosts: web
+
+  tasks:
+    - name: Le paquet nginx est installe
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: La page d'accueil est en place
+      ansible.builtin.copy:
+        content: "<h1>Serveur de {{ ansible_hostname }}</h1>\n"
+        dest: /var/www/html/index.html
+        mode: '0644'
+
+    - name: nginx est demarre et active au boot
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true

@@ -1,0 +1,17 @@
+# Fichier genere par Ansible, toute modification manuelle sera ecrasee
+
+upstream serveurs_web {
+    {% for serveur in groups['web'] %}
+    server {{ hostvars[serveur]['ansible_host'] }}:80;
+    {% endfor %}
+}
+
+server {
+    listen 80 default_server;
+
+    location / {
+        proxy_pass http://serveurs_web;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}

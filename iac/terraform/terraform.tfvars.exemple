@@ -1,0 +1,9 @@
+# Etudiant 1
+pve_endpoint  = "https://pve-binome07.oclock.lan:8006/"
+pve_api_token = "user1@pam!terraform=REMPLACEZ-MOI"
+pve_node      = "pve01"
+pool          = "etudiant1"
+vm_id         = 101
+adresse_ip    = "10.0.0.11"
+passerelle    = "10.0.0.1"
+pont          = "vmbr2"

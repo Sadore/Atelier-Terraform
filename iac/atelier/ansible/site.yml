@@ -1,0 +1,77 @@
+- name: Socle commun sur toutes les machines
+  hosts: all
+
+  tasks:
+    - name: Les paquets de base sont installes
+      ansible.builtin.apt:
+        name:
+          - curl
+          - htop
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Le message d'accueil identifie la machine
+      ansible.builtin.copy:
+        content: "TechSecure - {{ inventory_hostname }} - gere par Ansible, ne pas modifier a la main\n"
+        dest: /etc/motd
+        mode: '0644'
+
+- name: Serveurs web
+  hosts: web
+
+  tasks:
+    - name: nginx est installe
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: La page d'accueil identifie la machine
+      ansible.builtin.copy:
+        content: |
+          <!DOCTYPE html>
+          <html lang="fr"><head><meta charset="utf-8"><title>TechSecure</title></head>
+          <body><h1>TechSecure</h1>
+          <p>Servi par <strong>{{ inventory_hostname }}</strong></p></body></html>
+        dest: /var/www/html/index.html
+        mode: '0644'
+
+    - name: nginx est demarre et actif au boot
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+- name: Repartiteur de charge
+  hosts: proxy
+
+  tasks:
+    - name: nginx est installe
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Le site par defaut est desactive
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Redemarrer nginx
+
+    - name: La configuration du repartiteur est generee
+      ansible.builtin.template:
+        src: templates/repartiteur.conf.j2
+        dest: /etc/nginx/conf.d/repartiteur.conf
+        mode: '0644'
+      notify: Redemarrer nginx
+
+    - name: nginx est demarre et actif au boot
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Redemarrer nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

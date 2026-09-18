@@ -1,0 +1,10 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.exemple
+.terraform.lock.hcl
+
+# Ansible
+*.retry
